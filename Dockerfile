@@ -11,15 +11,12 @@ RUN set -ex && \
     ln -s /tmp/cmake-3.8.2-Linux-x86_64/bin/cmake /usr/bin/cmake && \
     git clone --recursive https://github.com/dmlc/xgboost /usr/src/xgboost && \
     cd /usr/src/xgboost && \
-    make -j4 && \
     cd ./jvm-packages && \
-    MAVEN_OPTS="-Xmx2g -XX:MaxPermSize=1024m" /tmp/apache-maven-3.5.0/bin/mvn package -DskipTests package -pl !xgboost4j-flink,!xgboost4j-example && \
-    cp ./xgboost4j/target/xgboost4j-0.7.jar $ZEPPELIN_HOME/lib && \
-    cp ./xgboost4j-spark/target/xgboost4j-spark-0.7.jar $ZEPPELIN_HOME/lib && \
+    MAVEN_OPTS="-Xmx2g -XX:MaxPermSize=1024m" /tmp/apache-maven-3.5.0/bin/mvn install -DskipTests -pl !xgboost4j-flink,!xgboost4j-example && \
+    echo $'#!/bin/bash\nexport SPARK_SUBMIT_OPTIONS="--packages ml.dmlc:xgboost4j:0.7,ml.dmlc:xgboost4j-spark:0.7"' > $ZEPPELIN_CONF/zeppelin-env.sh
     apt-get purge -y --auto-remove ${buildDeps} && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
-    rm -rf /root/.m2 && \
     rm -rf /usr/src/xgboost && \
     rm -rf /tmp/* && \
     rm -rf /usr/bin/cmake
